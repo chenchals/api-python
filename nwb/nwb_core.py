@@ -11,8 +11,8 @@
 
 "info": {
     "name": "NWB file format specification",
-    "version": "1.0.4_beta",
-    "date": "June 8, 2016",
+    "version": "1.0.5g_beta",
+    "date": "Oct 7, 2016",
     "author": "Keith Godfrey.  Converted to format specification by Jeff Teeters.",
     "contact": "jteeters@berkeley.edu, keithg@alleninstitute.org",
     "description": "Specification for the core NWB (Neurodata Withoug Borders) format."
@@ -23,29 +23,29 @@
 #     "identifier/" - group (has trailing slash)
 #     "<identifier>" - dataset with variable name
 #     "<identifier>/" - group with variable name
-  
+
 "schema": {
     "/": {
-		"description": "Top level of NWB file.",
-		# Example of how a root attribute would be specified:
-		# "attributes": {
-		# 	"nwb_version": {
-		# 		"data_type": "text",
-		# 		"value": fs["core"]["info"]["version"]}},
-				
-		"nwb_version": {
-			"data_type": "text",
-			"description": ("File version string. COMMENT: Eg, NWB-1.0.0. This will be the "
-			    "name of the format with trailing major, minor and patch numbers.")},
+        "description": "Top level of NWB file.",
+        # Example of how a root attribute would be specified:
+        # "attributes": {
+        #     "nwb_version": {
+        #         "data_type": "text",
+        #         "value": fs["core"]["info"]["version"]}},
 
-		"identifier": {
-			"data_type": "text",
-			"description": "A unique text identifier for the file. COMMENT: Eg, concatenated "
-			    "lab name, file creation date/time and experimentalist, or a hash of these "
-			    "and/or other values. The goal is that the string should be unique to all "
-			    "other files."},
+        "nwb_version": {
+            "data_type": "text",
+            "description": ("File version string. COMMENT: Eg, NWB-1.0.0. This will be the "
+                "name of the format with trailing major, minor and patch numbers.")},
 
-		"file_create_date": {
+        "identifier": {
+            "data_type": "text",
+            "description": "A unique text identifier for the file. COMMENT: Eg, concatenated "
+                "lab name, file creation date/time and experimentalist, or a hash of these "
+                "and/or other values. The goal is that the string should be unique to all "
+                "other files."},
+
+        "file_create_date": {
             "data_type": "text",
             "description": ("Time file was created, UTC, and subsequent modifications to file. "
                 "COMMENT: Date + time, Use ISO format (eg, ISO 8601) or a format that is "
@@ -54,54 +54,54 @@
                 "time. Each modifictation to file adds new entry to array. "),
             "dimensions": ["*unlimited*"]},
 
-		"session_start_time": {
-			"data_type": "text",
-			"description": ("Time of experiment/session start, UTC.  COMMENT: Date "
+        "session_start_time": {
+            "data_type": "text",
+            "description": ("Time of experiment/session start, UTC.  COMMENT: Date "
                 "+ time, Use ISO format (eg, ISO 8601) or an easy-to-read and unambiguous "
                 "format. All times stored in the "
                 "file use this time as reference (ie, time zero)")},
-                
-		"session_description": {
-			"data_type": "text",
-			"description": "One or two sentences describing the experiment and data in the file."},
-			
-	},
-	"/acquisition/": {
-	    "description": ("Data streams recorded from the system, including ephys, ophys, tracking, etc. "
-		    "COMMENT: This group is read-only after the experiment is completed and timestamps are corrected to "
-		    "a common timebase. The data stored here may be links to raw data stored in external HDF5 "
-		    "files. This will allow keeping bulky raw data out of the file while preserving the option "
-		    "of keeping some/all in the file. "
-		    "MORE_INFO: Acquired data includes tracking and experimental data streams (ie, "
-		    "everything measured from the system)."
-		    "If bulky data is stored in the /acquisition group, the data can exist in a "
-		    "separate HDF5 file that is linked to by the file being used for processing "
-		    "and analysis."),
-		"autogen": { "type": "create"},
-		"images/": {
+
+        "session_description": {
+            "data_type": "text",
+            "description": "One or two sentences describing the experiment and data in the file."},
+
+    },
+    "/acquisition/": {
+        "description": ("Data streams recorded from the system, including ephys, ophys, tracking, etc. "
+            "COMMENT: This group is read-only after the experiment is completed and timestamps are corrected to "
+            "a common timebase. The data stored here may be links to raw data stored in external HDF5 "
+            "files. This will allow keeping bulky raw data out of the file while preserving the option "
+            "of keeping some/all in the file. "
+            "MORE_INFO: Acquired data includes tracking and experimental data streams (ie, "
+            "everything measured from the system)."
+            "If bulky data is stored in the /acquisition group, the data can exist in a "
+            "separate HDF5 file that is linked to by the file being used for processing "
+            "and analysis."),
+        "_properties": {"create": True},
+        "images/": {
             "description": "Acquired images",
-            "autogen": { "type": "create"},
+            "_properties": {"create": True},
             "<image_X>*": {
-				"data_type": "binary",
-				"description": ("Photograph of experiment or experimental setup (video also OK). "
-					"COMMENT: Name is arbitrary.  Data is stored as a single binary object "
-					"(HDF5 opaque type)."),
-				"attributes": {
-					"format": {
-						"data_type": "text",
-						"description": "Format of the image.  COMMENT: eg, jpg, png, mpeg" },
-					"description^": {
-						"data_type": "text",
-						"description": ("Human description of image. "
-							"COMMENT: If image is of slice data, include slice thickness and "
-							"orientation, and reference to appropriate entry in /general/slices")}}}},
+                "data_type": "binary",
+                "description": ("Photograph of experiment or experimental setup (video also OK). "
+                    "COMMENT: Name is arbitrary.  Data is stored as a single binary object "
+                    "(HDF5 opaque type)."),
+                "attributes": {
+                    "format": {
+                        "data_type": "text",
+                        "description": "Format of the image.  COMMENT: eg, jpg, png, mpeg" },
+                    "description^": {
+                        "data_type": "text",
+                        "description": ("Human description of image. "
+                            "COMMENT: If image is of slice data, include slice thickness and "
+                            "orientation, and reference to appropriate entry in /general/slices")}}}},
             # "include": {"<image_X>*": {}},
         "timeseries/": {
             "description": ("Acquired TimeSeries."
                 "COMMENT: When importing acquisition data to an NWB file, "
                 "all acquisition/tracking/stimulus data must already be aligned to a common time "
                 "frame. It is assumed that this task has already been performed."),
-            "autogen": { "type": "create"},
+            "_properties": {"create": True},
             "include":  {
                 "<TimeSeries>/*":{"_options": {"subclasses": True}},
                 }}
@@ -116,7 +116,7 @@
             "restriction on its form or schema, reducing data formatting restrictions on "
             "end users. Such data should be placed in the analysis group. The analysis data "
             "should be documented so that it is sharable with other labs"),
-        "autogen": { "type": "create"}
+        "_properties": {"create": True},
     },
     "/epochs/": {
         "description": ("Experimental intervals, whether that be logically distinct sub-experiments "
@@ -136,7 +136,7 @@
             "can be limited to the interval of a particular stimulus, or they can span multiple "
             "stimuli. Different windows into the same time series can be achieved by including "
             "multiple instances of that time series, each with different start/stop times."),
-        "autogen": { "type": "create"},
+        "_properties": {"create": True},
         "attributes": {
             "tags": {
                 "description": ("A sorted list of the different tags used by epochs. "
@@ -149,10 +149,10 @@
                     "target":"<epoch_X>/tags",
                     "trim": True,
                     "qty": "*",
-                    "include_empty": True}}},                    
+                    "include_empty": True}}},
         "<epoch_X>/*": {
             "_description": ("One of possibly many different experimental epoch"
-                "COMMENT: Name is arbitrary but must be unique within the experiment."),   
+                "COMMENT: Name is arbitrary but must be unique within the experiment."),
             "attributes": {
                 "neurodata_type": {
                     "description": "The string \"Epoch\"",
@@ -171,7 +171,7 @@
                     "\"'auditory_cue' is '/stimulus/presentation/auditory_cue'\"."
                     ),
                     "data_type": "text",
-                    "dimensions": "num_links",
+                    "dimensions": ["num_links"],
                     "autogen": {
                         "type": "link_path",
                         "target":"<timeseries_X>/timeseries",
@@ -185,12 +185,10 @@
                 "description": "Description of this epoch (&lt;epoch_X&gt;)."},
             "start_time": {
                 "description": "Start time of epoch, in seconds",
-                "data_type": "float64!",
-                "unit": "second", },
+                "data_type": "float64!"},
             "stop_time": {
                 "description": "Stop time of epoch, in seconds",
-                "data_type": "float64!",
-                "unit": "second", },
+                "data_type": "float64!"},
             "tags?": {
                 "description": ("User-defined tags used throughout "
                     "the epochs. Tags are "
@@ -236,110 +234,110 @@
             "All entries in the below table are to be included when data is present. "
             "Unused groups (e.g., intracellular_ephys in an optophysiology experiment) "
             "should not be created unless there is data to store within them."),
-        "autogen": { "type": "create"},
+        "_properties": {"create": True},
         "__custom?": {
-            "description": ("TIndicates that this group (general/) is the default location for custom"
+            "description": ("Indicates that this group (general/) is the default location for custom"
                 " nodes.  This dataset in the format specification is just a flag. "
-                " There is no actual data stored in the HDF5 file for this data sets."),
+                " There is no actual data stored in the HDF5 file for this dataset."),
             "data_type": "int"},
-		"session_id^": {
-			"data_type": "text",
-			"description":("Lab-specific ID for the session."
-			    "COMMENT: Only 1 session_id per file, with all time aligned to "
-			    "experiment start time.")},
-		"experimenter^": {
-			"data_type": "text",
-			"description": ("Name of person who performed the experiment."
-			    "COMMENT: More than one person OK. Can specify roles of different people involved.")},
-		"institution^": {
-			"data_type": "text",
-			 "description": "Institution(s) where experiment was performed"},
-		"lab^": {
-			"data_type": "text",
-			"description": "Lab where experiment was performed"},
-		"related_publications?": {
-			"data_type": "text",
-			 "description": ("Publication information."
-			     "COMMENT: PMID, DOI, URL, etc. If multiple, concatenate together and describe "
-			         "which is which. such as PMID, DOI, URL, etc")},
-		"notes?": {
-			"data_type": "text",
-			"description": ("Notes about the experiment.  COMMENT: Things particular to"  
-				" this experiment")},
-		"experiment_description^": {
-			"data_type": "text",
-			"description": ("General description of the experiment."
-			    "COMMENT: Can be from Methods")},
-		"data_collection?": {
-			"data_type": "text",
-			"description": ("Notes about data collection and analysis."
-			    "COMMENT: Can be from Methods")},
-		"stimulus?": {
-			"data_type": "text",
-			"description": ("Notes about stimuli, such as how and where presented."
-			    "COMMENT: Can be from Methods")},
-		"pharmacology?": {
-			"data_type": "text",
-			"description": ("Description of drugs used, including how and when they were"
-				" administered. "
-				"COMMENT: Anesthesia(s), painkiller(s), etc., plus dosage, concentration, "
-				"etc.")},
-		"surgery?": {
-			"data_type": "text",
-			"description": ("Narrative description about surgery/surgeries, including date(s)"
-				" and who performed surgery. "
-				"COMMENT: Much can be copied from Methods")},                                    
-		"protocol?": {
-			"data_type": "text",
-			"description": ("Experimetnal protocol, if applicable."
-			    "COMMENT: E.g., include IACUC protocol")},
-		"subject/?": {
-			"_description": ("Information about the animal or person from which the "
-			    "data was measured."),
-			"subject_id?": {
-				"data_type": "text",
-				"description": ("ID of animal/person used/participating in experiment"
-					" (lab convention)")},
-			"description?": { 
-				"data_type": "text",
-				"description": ("Description of subject and where subject came from (e.g.,"  
-					" breeder, if animal)")},                                          
-			"species?": {
-				"data_type": "text",
-				 "description": "Species of subject"},
-			"genotype?": {
-				"data_type": "text",
-				"description": ("Genetic strain "
-				    "COMMENT: If absent, assume Wild Type (WT)")},
-			"sex?": {
-				"data_type": "text",
-				"description": "Gender of subject"},                                            
-			"age?": {
-				"data_type": "text",
-				"description": "Age of subject"},
-			"weight?": {
-				"data_type": "text",
-				"description": ("Weight at time of experiment, at time of surgery and at other"
-					" important times")}
-		},
-		"virus?": {
-			"data_type": "text",
-			"description": ("Information about virus(es) used in experiments, including"
-				" virus ID, source, date made, injection location, volume, etc")
-		},
-		"slices?": {
-			"data_type": "text",
-			"description": ("Description of slices, including information about preparation"
-				" thickness, orientation, temperature and bath solution")
-		},
-		"devices/?": {
-			"description": ("Description of hardware devices used during experiment. "
-			    "COMMENT: Eg, monitors, ADC boards, microscopes, etc"),
-			"<device_X>*": {
-				"description": ("One of possibly many. Information about device and device "
-				    "description. "
-				    "COMMENT: Name should be informative. Contents can be from Methods."),
-				"data_type": "text"},
+        "session_id^": {
+            "data_type": "text",
+            "description":("Lab-specific ID for the session."
+                "COMMENT: Only 1 session_id per file, with all time aligned to "
+                "experiment start time.")},
+        "experimenter^": {
+            "data_type": "text",
+            "description": ("Name of person who performed the experiment."
+                "COMMENT: More than one person OK. Can specify roles of different people involved.")},
+        "institution^": {
+            "data_type": "text",
+             "description": "Institution(s) where experiment was performed"},
+        "lab^": {
+            "data_type": "text",
+            "description": "Lab where experiment was performed"},
+        "related_publications?": {
+            "data_type": "text",
+             "description": ("Publication information."
+                 "COMMENT: PMID, DOI, URL, etc. If multiple, concatenate together and describe "
+                     "which is which. such as PMID, DOI, URL, etc")},
+        "notes?": {
+            "data_type": "text",
+            "description": ("Notes about the experiment.  COMMENT: Things particular to"
+                " this experiment")},
+        "experiment_description^": {
+            "data_type": "text",
+            "description": ("General description of the experiment."
+                "COMMENT: Can be from Methods")},
+        "data_collection?": {
+            "data_type": "text",
+            "description": ("Notes about data collection and analysis."
+                "COMMENT: Can be from Methods")},
+        "stimulus?": {
+            "data_type": "text",
+            "description": ("Notes about stimuli, such as how and where presented."
+                "COMMENT: Can be from Methods")},
+        "pharmacology?": {
+            "data_type": "text",
+            "description": ("Description of drugs used, including how and when they were"
+                " administered. "
+                "COMMENT: Anesthesia(s), painkiller(s), etc., plus dosage, concentration, "
+                "etc.")},
+        "surgery?": {
+            "data_type": "text",
+            "description": ("Narrative description about surgery/surgeries, including date(s)"
+                " and who performed surgery. "
+                "COMMENT: Much can be copied from Methods")},
+        "protocol?": {
+            "data_type": "text",
+            "description": ("Experimetnal protocol, if applicable."
+                "COMMENT: E.g., include IACUC protocol")},
+        "subject/?": {
+            "_description": ("Information about the animal or person from which the "
+                "data was measured."),
+            "subject_id?": {
+                "data_type": "text",
+                "description": ("ID of animal/person used/participating in experiment"
+                    " (lab convention)")},
+            "description?": {
+                "data_type": "text",
+                "description": ("Description of subject and where subject came from (e.g.,"
+                    " breeder, if animal)")},
+            "species?": {
+                "data_type": "text",
+                 "description": "Species of subject"},
+            "genotype?": {
+                "data_type": "text",
+                "description": ("Genetic strain "
+                    "COMMENT: If absent, assume Wild Type (WT)")},
+            "sex?": {
+                "data_type": "text",
+                "description": "Gender of subject"},
+            "age?": {
+                "data_type": "text",
+                "description": "Age of subject"},
+            "weight?": {
+                "data_type": "text",
+                "description": ("Weight at time of experiment, at time of surgery and at other"
+                    " important times")}
+        },
+        "virus?": {
+            "data_type": "text",
+            "description": ("Information about virus(es) used in experiments, including"
+                " virus ID, source, date made, injection location, volume, etc")
+        },
+        "slices?": {
+            "data_type": "text",
+            "description": ("Description of slices, including information about preparation"
+                " thickness, orientation, temperature and bath solution")
+        },
+        "devices/?": {
+            "description": ("Description of hardware devices used during experiment. "
+                "COMMENT: Eg, monitors, ADC boards, microscopes, etc"),
+            "<device_X>*": {
+                "description": ("One of possibly many. Information about device and device "
+                    "description. "
+                    "COMMENT: Name should be informative. Contents can be from Methods."),
+                "data_type": "text"},
         },
         "source_script?": {
             "description": "Script file used to create this NWB file.",
@@ -351,27 +349,27 @@
                 "data_type": "text"
         },
         "specifications/?": {
-			"description": "Group for storing format specification files.",
-			"<specification_file>*": {
-				"description": "Dataset for storing contents of a specification file for either "
-					"the core format or an extension.  Name should match name of file.`",
-				"attributes": {
-					"help?": {
-					    "data_type": "text",
-					    "value": "Contents of format specification file." },
-					"namespaces": {
-					    "description": "Namespaces defined in the file",
-					    "data_type": "text",
-					    "dimensions": ["num_namespaces"]
-					    }
-	#                 "version": { "data_type": "text"},
-	#                 "date": { "data_type": "text"},
-	#                 "author": {"data_type": "text"},
-	#                 "contact": {"data_type": "text"},
-	#                 "description": {"data_type": "text"},
-				},
-				"data_type": "text"
-			}
+            "description": "Group for storing format specification files.",
+            "<specification_file>*": {
+                "description": "Dataset for storing contents of a specification file for either "
+                    "the core format or an extension.  Name should match name of file.`",
+                "attributes": {
+                    "help?": {
+                        "data_type": "text",
+                        "value": "Contents of format specification file." },
+                    "namespaces": {
+                        "description": "Namespaces defined in the file",
+                        "data_type": "text",
+                        "dimensions": ["num_namespaces"]
+                        }
+    #                 "version": { "data_type": "text"},
+    #                 "date": { "data_type": "text"},
+    #                 "author": {"data_type": "text"},
+    #                 "contact": {"data_type": "text"},
+    #                 "description": {"data_type": "text"},
+                },
+                "data_type": "text"
+            }
         }
     },
     "/general/intracellular_ephys/?": {
@@ -385,11 +383,11 @@
         "<electrode_X>/": {
             "_description": ("One of possibly many. "
             "COMMENT: Name should be informative."),
-			"description": {
-				"data_type": "text",
-				"description": ("Recording description, description of electrode (e.g., "
-				" whole-cell, sharp, etc)"
-				"COMMENT: Free-form text (can be from Methods)")},
+            "description": {
+                "data_type": "text",
+                "description": ("Recording description, description of electrode (e.g., "
+                " whole-cell, sharp, etc)"
+                "COMMENT: Free-form text (can be from Methods)")},
             "location?": {
                 "data_type": "text",
                 "description": ("Area, layer, comments on estimation, stereotaxis coordinates"
@@ -413,7 +411,7 @@
                 "data_type": "text",
                 "description": "Electrode specific filtering."}
         },
-    },            
+    },
     "/general/extracellular_ephys/?": {
         "description": "Metadata related to extracellular electrophysiology.",
         "electrode_map": {
@@ -426,7 +424,7 @@
             "dimensions": ["num_electrodes","xyz"],  # specifies 2-D array
             "data_type": "number",
             "xyz" : {  # definition of dimension xyz
-                "type": "struct", 
+                "type": "structure",
                 "components": [
                     { "alias": "x", "unit": "meter" },
                     { "alias": "y", "unit": "meter" },
@@ -468,7 +466,7 @@
                 "COMMENT: Name is arbitrary but should be meaningful."),
             "description": {  # this description is a dataset since it is a dict with a data_type
                 "data_type": "text",
-                "description": "Description of probe or shank", },          
+                "description": "Description of probe or shank", },
             "location": {
                 "data_type": "text",
                 "description": ("Description of probe location"
@@ -491,7 +489,7 @@
                 "description": "Description of &lt;image_plane_X&gt;",
                 "data_type": "text"
             },
-            "manifold": {
+            "manifold^": {
                 "description": ("Physical position of each pixel. "
                 "COMMENT: \"xyz\" represents the position of the pixel relative to the "
                 "defined coordinate space"),
@@ -507,12 +505,12 @@
                             "unit (e.g., 1e-3 for millimeters)"),
                         "data_type": "float", "value": 1.0}},
                 "xyz" : {  # definition of dimension xyz
-                     "type": "struct", 
+                     "type": "structure",
                     "components": [
                         { "alias": "x", "unit": "Meter" },
                         { "alias": "y", "unit": "Meter" },
                         { "alias": "z", "unit": "Meter" } ] }},
-            "reference_frame": {
+            "reference_frame^": {
                 "description": ("Describes position and reference frame of manifold based "
                     "on position of first element in manifold. For example, text description "
                     "of anotomical location or vectors needed to rotate to common anotomical "
@@ -580,38 +578,9 @@
             "MORE_INFO: 'Processing' refers to intermediate analysis of the acquired data to make "
             "it more amenable to scientific analysis. These are performed using Modules, as "
             "defined above. All modules reside in the processing group."),
-        "autogen": { "type": "create"},
-		"<Module>/*": {
-			"description": ("Module.  Name should be descriptive. "
-			    "Stores a collection of related data organized by "
-			    "contained interfaces.  Each interface is a contract specifying content "
-				"related to a particular type of data."),
-			"attributes": {
-			    "description?": {
-                    "data_type": "text",
-                    "description": "Description of Module"},
-				# "interfaces": {"data_type": "text", "dimensions": ["num_interfaces",]},
-				"interfaces": {
-				    "description": ("Names of the data interfaces offered by this module. "
-				        "COMMENT: E.g., [0]=\"EventDetection\", [1]=\"Clustering\", "
-				            "[2]=\"FeatureExtraction\""),
-					"data_type": "text",
-					"dimensions": ["num_interfaces",],
-					"autogen": {
-						"type": "names",
-						"target":"<*>/",
-						# should modify autogen to use target <Interface> subclass, rather than tsig
-						# "target":"<Interface>/",
-						"tsig": {"type": "group",
- 						    "attrs": { "neurodata_type": "Interface"}},
-						"trim": True,
-						"qty": "*"}},
-				"neurodata_type": {
-				    "description": "The string \"Module\"",
-				       "data_type": "text", "value": "Module", "const":True}},
-            "include": { "<Interface>/*": {"_options": {"subclasses": True}}}
-		}
-	},
+        "_properties": {"create": True},
+        "include": { "<Module>/*": {"_options": {"subclasses": True} }}
+    },
     "/stimulus/": {
         "description": ("Data pushed into the system (eg, video stimulus, sound, voltage, etc) and "
             "secondary representations of that data (eg, measurements of something used as a "
@@ -626,10 +595,10 @@
             "stimuli can be stored and these be used multiple times. These templates can "
             "exist in the present file or can be HDF5-linked to a remote library file."
             ),
-        "autogen": { "type": "create"},
+        "_properties": {"create": True},
         "presentation/": {
             "description": "Stimuli presented during the experiment.",
-            "autogen": { "type": "create"},
+            "_properties": {"create": True},
             "include": {
                 "<TimeSeries>/*":{"_options": {"subclasses": True}},
             }
@@ -640,13 +609,42 @@
                 "relative to the beginning of the stimulus. When templates are used, the "
                 "stimulus instances must convert presentation times to the experiment's "
                 "time reference frame."),
-            "autogen": { "type": "create"},
+            "_properties": {"create": True},
             "include": {
                 "<TimeSeries>/*":{"_options": {"subclasses": True}},
             }
         },
     },
     # start of id's without absolute path
+    "<Module>/": {
+        "description": ("Module.  Name should be descriptive. "
+            "Stores a collection of related data organized by "
+            "contained interfaces.  Each interface is a contract specifying content "
+            "related to a particular type of data."),
+        "attributes": {
+            "description?": {
+                "data_type": "text",
+                "description": "Description of Module"},
+            "interfaces": {
+                "description": ("Names of the data interfaces offered by this module. "
+                    "COMMENT: E.g., [0]=\"EventDetection\", [1]=\"Clustering\", "
+                        "[2]=\"FeatureExtraction\""),
+                "data_type": "text",
+                "dimensions": ["num_interfaces",],
+                "autogen": {
+                    "type": "names",
+                    "target":"<*>/",
+                    # should modify autogen to use target <Interface> subclass, rather than tsig
+                    # "target":"<Interface>/",
+                    "tsig": {"type": "group",
+                        "attrs": { "neurodata_type": "Interface"}},
+                    "trim": True,
+                    "qty": "*"}},
+            "neurodata_type": {
+                "description": "The string \"Module\"",
+                   "data_type": "text", "value": "Module", "const":True}},
+        "include": { "<Interface>/*": {"_options": {"subclasses": True}}}
+    },
     # base timeSeries structure
     "<TimeSeries>/": {
         "description": "General purpose time series.",
@@ -666,7 +664,7 @@
                 "description": ("Name of TimeSeries or Modules that serve as the source for "
                     "the data contained here. It can also be the name of a device, for "
                     "stimulus or acquisition data"),
-                # "value": "",  # default to empty string if nothing specified          
+                # "value": "",  # default to empty string if nothing specified
                 "data_type": "text"},
             "ancestry": {
                 "data_type": "text", "value": ["TimeSeries"], "const": True,
@@ -713,6 +711,8 @@
                 "description": ("List of fields that are not optional (i.e. either "
                     "required or recommended parts of the"
                     " TimeSeries) that are missing. "
+                    "The list can also include additional identifiers, as long as "
+                    "they are not present in the group, whether or not they optional."
                     "COMMENT: Only present if one or more required or recommended fields are missing. Note that "
                     "a missing required field (such as data or timestamps) should generate an error "
                     "by the API"),
@@ -720,7 +720,8 @@
                 "dimensions": ["num_missing_fields"],
                 "autogen": {
                     "type": "missing",
-                    # "target": 
+                    "allow_others": True,
+                    # "target":
                     # "trim": True,
                     "qty": "*"}},
             "extern_fields^": {
@@ -730,9 +731,9 @@
                 "dimensions": ["num_extern_fields"],
                 "autogen": {
                     "type": "extern",
-                    # "target": 
+                    # "target":
                     # "trim": True,
-                    "qty": "*"}},                    
+                    "qty": "*"}},
             "help?": {
                 "description": ("Short description indicating what this type of TimeSeries stores."),
                 "data_type": "text",
@@ -758,16 +759,19 @@
                         "COMMENT: All timestamps in the file are stored in seconds. "
                         "Specifically, this is the number of seconds since the start of the "
                         "experiment (i.e., since session_start_time)"),
-                    "data_type": "text", "value": "Seconds"} }
+                    "data_type": "text", "value": "Seconds"} },
         },
         "_required": { # Specifies required member combinations",
             "start_time" :
                 ["starting_time XOR timestamps",
                     "Either starting_time or timestamps must be present, but not both."],
-            "control": 
+            "control":
                 ["(control AND control_description) OR (NOT control AND NOT control_description)",
                     ("If either control or control_description are present, then "
                     "both must be present.")]},
+        "_exclude_in": {
+            # specifies path where members must (!) or should (^) not be present, or are optional (?)
+            "/stimulus/templates": [ "starting_time!",  "timestamps!", "num_samples?"] },
         "starting_time?": {
             "description": ("The timestamp of the first sample. "
                 "COMMENT: When timestamps are uniformly spaced, the timestamp of the first "
@@ -786,7 +790,7 @@
                         "experiment (i.e., since session_start_time)"),
                     "data_type": "text",
                     "value": "Seconds"}},
-        },       
+        },
         "num_samples": {
             "description": ("Number of samples in data, or number of image frames. "
                 "COMMENT: This is important if the length of timestamp and data are "
@@ -799,11 +803,11 @@
         "control?": {
             "description": ("Numerical labels that apply to each element in data[]. "
                 "COMMENT: Optional field. If present, the control array should have the "
-                "same number of elements as data[]."), 
+                "same number of elements as data[]."),
             "data_type": "uint8",
             "dimensions": ["num_times"],
             "references": "control_description.num_control_values"
-        }, 
+        },
         "control_description?": {
             "data_type": "text",
             "dimensions": ["num_control_values"],
@@ -819,7 +823,7 @@
                 "COMMENT: This group will usually only be populated in TimeSeries that "
                 "are stored external to the NWB file, in files storing raw data. Once "
                 "timestamp data is calculated, the contents of 'sync' are mostly for "
-                "archival purposes.") },   
+                "archival purposes.") },
         "data": {
             "description": ("Data values. Can also store binary data (eg, image frames) "
                 "COMMENT: This field may be a link to data stored in an external file, "
@@ -846,7 +850,9 @@
                         "value": 0.0, # default value
                         "data_type": "float32!"},
             },
-            "dimensions": ["num_times"], # specifies 1-d array
+            "dimensions": [["num_times"],                       # 1-d array (normal case)
+                           ["num_times", "num_d2"],             # 2-d array
+                           ["num_times", "num_d2", "num_d3"]],  # 3-d array
             "data_type": "any"
         },
     },
@@ -880,7 +886,7 @@
             "dimensions": ["num_features"],
             "data_type": "text"},
         "data": {
-            "description": "Values of each feature at each time.", 
+            "description": "Values of each feature at each time.",
             "dimensions": ["num_times", "num_features"],
             "data_type": "float32",
             "attributes": { "unit": {
@@ -908,15 +914,15 @@
             "dimensions": ["num_times"],
             "data_type": "text",
             "attributes": {
-				"conversion": {
-					"description": "Value is float('NaN') (const) since this does not apply.",
-					"value": "float('NaN')", "const": True},
-				"resolution": {
-					"description": "Value is float('nan') (const) since this does not apply",
-					"value": "float('NaN')", "const": True},
-				"unit": {
-					"description": "Value is \"n/a\" to indicate that this does not apply", 
-					"value": "n/a", "const": True}}},
+                "conversion": {
+                    "description": "Value is float('NaN') since this does not apply.",
+                    "value": "float('NaN')"},
+                "resolution": {
+                    "description": "Value is float('nan')since this does not apply",
+                    "value": "float('NaN')"},
+                "unit": {
+                    "description": "Value is \"n/a\" to indicate that this does not apply",
+                    "value": "n/a"}}},
     },
     "<IndexSeries>/": {
         "description": ("Stores indices to image frames stored in an ImageSeries. The purpose "
@@ -925,7 +931,7 @@
             "display of individual images, or of movie segments (as a movie is simply a "
             "series of images). The data field stores the index of the frame in the "
             "referenced ImageSeries, and the timestamps array indicates when that image "
-            "was displayed."), 
+            "was displayed."),
         "merge": ["<TimeSeries>/"],
         "attributes": {
             "ancestry": {
@@ -946,7 +952,8 @@
             "references": "indexed_timeseries/data.num_times"},
         "indexed_timeseries/": {
             "description": "HDF5 link to TimeSeries containing images that are indexed.",
-            "link": {"target_type": "<ImageSeries>/", "allow_subclasses": False } },
+            # "link": {"target_type": "<ImageSeries>/", "allow_subclasses": True } },
+            "link": {"target_type": "<TimeSeries>/", "allow_subclasses": True } },
         "indexed_timeseries_path": {
             "description": "Path to linked TimeSeries",
             "data_type": "text",
@@ -955,7 +962,7 @@
                 "target":"indexed_timeseries/",
                 "trim": False,
                 "qty": "!",
-                "format": "path is $t"}},
+                "format": "$t"}},
     },
     "<IntervalSeries>/": {
         "description": ("Stores intervals of data. The timestamps field stores the beginning "
@@ -981,14 +988,14 @@
             "dimensions": ["num_times"],
             "attributes": {
                 "conversion": {
-                    # "description": "Valus is float('nan') (const) since this does not apply.",
-                    "value": "float('NaN')", "const": True},
+                    # "description": "Value is float('nan') since this does not apply.",
+                    "value": "float('NaN')"},
                 "resolution": {
-                    # "description": "Value is float('nan') (const) since this does not apply",
-                    "value": "float('NaN')", "const": True},
+                    # "description": "Value is float('nan') since this does not apply",
+                    "value": "float('NaN')"},
                 "unit": {
-                    # "description": "Value is \"n/a\" to indicate that this does not apply", 
-                    "value": "n/a", "const": True}},
+                    # "description": "Value is \"n/a\" to indicate that this does not apply",
+                    "value": "n/a"}},
             "data_type": "int8"},
     },
     "<OptogeneticSeries>/": {
@@ -1035,7 +1042,7 @@
             "data_type": "float32"},
         "segmentation_interface/":  {
             "description": "HDF5 link to image segmentation module defining ROIs.",
-            "link": {"target_type": "ImageSegmentation/", "allow_subclasses": False } },
+            "link": {"target_type": "ImageSegmentation/", "allow_subclasses": True } },
         "segmentation_interface_path": {
             "description": "Path to segmentation module.",
             "data_type": "text",
@@ -1080,7 +1087,7 @@
             "dimensions": ["num_times", "num_features"],
             "attributes": { "unit": { "data_type": "text", "value": "meter" }},
             "data_type": "number"},
-    }, 
+    },
     "<ElectricalSeries>/": {
         "description": ("Stores acquired voltage data from extracellular recordings. "
         "The data field of an ElectricalSeries is an int or float array storing data "
@@ -1100,8 +1107,8 @@
                 "const": True}},
         "data": {
             "description": "Recorded voltage data.",
-            "dimensions": [   
-                ["num_times"],                # for single electrode (2-d array)       
+            "dimensions": [
+                ["num_times"],                # for single electrode (2-d array)
                 ["num_times", "num_channels"]], # for multiple electrode (3-d array)
             "data_type": "number",
             "attributes": { "unit": { "data_type": "text", "value": "volt" }}},
@@ -1110,7 +1117,7 @@
                 "general/extracellular_ephys/electrode_map."),
             "dimensions": ["num_channels"],
             "data_type": "int32",
-            "references": "/general/extracellular_ephys/electrode_map.num_electrodes",},     
+            "references": "/general/extracellular_ephys/electrode_map.num_electrodes",},
     },
     "<SpikeEventSeries>/": {
         "description": ("Stores \"snapshots\" of spike events (i.e., threshold crossings) "
@@ -1135,7 +1142,7 @@
         "data": {
             "description": "Spike waveforms.",
             "dimensions": [
-                ["num_events", "num_samples"],                # for single electrode (2-d array)       
+                ["num_events", "num_samples"],                # for single electrode (2-d array)
                 ["num_events","num_channels","num_samples"]], # for multiple electrode (3-d array)
             "data_type": "float32",
             "attributes": { "unit": { "data_type": "text", "value": "volt" }}},
@@ -1180,7 +1187,7 @@
             "help?": {
                 "data_type": "text",
                 "value": ("Stimulus voltage applied during voltage clamp recording"),
-                "const": True}},      
+                "const": True}},
     },
     "<CurrentClampStimulusSeries>/": {
         "description": ("Aliases to standard PatchClampSeries. Its functionality is to better"
@@ -1195,7 +1202,7 @@
             "help?": {
                 "data_type": "text",
                 "value": ("Stimulus current applied during current clamp recording"),
-                "const": True}},            
+                "const": True}},
     },
     "<VoltageClampSeries>/": {
         "description": ("Stores current data recorded from intracellular voltage-clamp"
@@ -1213,31 +1220,31 @@
                 "value": ("Current recorded from cell during voltage-clamp recording"),
                 "const": True}},
         "capacitance_fast^": {
-            "attributes": { "unit": {"data_type": "text", "value": "Farad"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "Farad"}},
             "description": "Unit: Farad",
             "data_type": "float32"},
         "capacitance_slow^": {
-            "attributes": { "unit": {"data_type": "text", "value": "Farad"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "Farad"}},
             "description": "Unit: Farad",
             "data_type": "float32"},
         "resistance_comp_bandwidth^": {
-            "attributes": { "unit": {"data_type": "text", "value": "Hz"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "Hz"}},
             "description": "Unit: Hz",
             "data_type": "float32"},
         "resistance_comp_correction^": {
-            "attributes": { "unit": {"data_type": "text", "value": "pecent"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "pecent"}},
             "description": "Unit: %",
             "data_type": "float32"},
         "resistance_comp_prediction^": {
-            "attributes": { "unit": {"data_type": "text", "value": "pecent"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "pecent"}},
             "description": "Unit: %",
             "data_type": "float32"},
         "whole_cell_capacitance_comp^": {
-            "attributes": { "unit": {"data_type": "text", "value": "Farad"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "Farad"}},
             "description": "Unit: Farad",
             "data_type": "float32"},
         "whole_cell_series_resistance_comp^": {
-            "attributes": { "unit": {"data_type": "text", "value": "Ohm"}},
+            "attributes": { "unit^": {"data_type": "text", "value": "Ohm"}},
             "description": "Unit: Ohm",
             "data_type": "float32"}
     },
@@ -1287,7 +1294,7 @@
                 "data_type": "text",
                 "value": ("Voltage from intracellular recordings "
                     "when all current and amplifier settings are off"),
-                "const": True}} 
+                "const": True}}
     },
     "<ImageSeries>/": {
         "description": ("General image data that is common between acquisition and "
@@ -1343,7 +1350,7 @@
         "dimension^": {
             "description": "Number of pixels on x, y, (and z) axes.",
             "data_type": "int32",
-            "dimensions": ["rank"]},       
+            "dimensions": ["rank"]},
     },
     "<ImageMaskSeries>/": {
         "description": ("An alpha mask that is applied to a presented visual stimulus. The "
@@ -1355,7 +1362,7 @@
         "attributes": {
             "ancestry": {
                 "data_type": "text",
-                "dimensions": ["3"], 
+                "dimensions": ["3"],
                 "value":["TimeSeries","ImageSeries","ImageMaskSeries"],
                 "const": True},
             "help?": {
@@ -1364,7 +1371,7 @@
                 "const": True}},
         "masked_imageseries/": {
             "description": "Link to ImageSeries that mask is applied to.",
-            "link": {"target_type": "<ImageSeries>/", "allow_subclasses": False } },
+            "link": {"target_type": "<ImageSeries>/", "allow_subclasses": True } },
         "masked_imageseries_path": {
             "description": "Path to linked ImageSeries",
             "data_type": "text",
@@ -1373,8 +1380,8 @@
                 "target":"masked_imageseries/",
                 "trim": False,
                 "qty": "!",
-                "format": "path is $t"}},
-    },    
+                "format": "$t"}},
+    },
     "<TwoPhotonSeries>/": {
         "description": "A special case of optical imaging.",
         "attributes": {
@@ -1396,7 +1403,7 @@
             "data_type": "float32",
             "dimensions": ["whd", ],
             "whd": {
-                "type": "struct", 
+                "type": "structure",
                 "components": [
                     { "alias": "width", "unit": "meter" },
                     { "alias": "height", "unit": "meter" },
@@ -1430,13 +1437,13 @@
                 "const": True}},
         "merge": ["<ImageSeries>/", ],
         "field_of_view^": {
-            "description": "Width, height and depto of image, or imaged area (meters).",
+            "description": "Width, height and depth of image, or imaged area (meters).",
             "data_type": "float32",
             "dimensions" : ["fov",],
             "fov" : {  # definition of dimension fov
-                "type": "structure", 
+                "type": "structure",
                 "components": [
-                    [ 
+                    [
                         { "alias": "width", "unit": "meter" },
                         { "alias": "height", "unit": "meter" }
                     ],
@@ -1444,7 +1451,7 @@
                         { "alias": "width", "unit": "meter" },
                         { "alias": "height", "unit": "meter" },
                         { "alias": "depth", "unit": "meter" }
-                    ] 
+                    ]
                 ]
             }
         },
@@ -1481,9 +1488,10 @@
         "attributes": {
             "help?": {
                 "data_type":"text",
-                "value":"Position data, whether along the x, xy or xyz axis",
+                "value":"General container for storing event series",
                 "const": True}},
-        "include": {"<TimeSeries>/*": {}, },
+        # "include": {"<TimeSeries>/*": {}},
+        "include": {"<TimeSeries>/+": {"_options": {"subclasses": True}}},
     },
     "BehavioralEpochs/": {
         "merge": ["<Interface>/", ],
@@ -1506,15 +1514,17 @@
                 "data_type":"text",
                 "value":"General container for storing behavorial epochs",
                 "const": True}},
-        "include": {"<IntervalSeries>/*": {}},
+        "include": {"<IntervalSeries>/+": {"_options": {"subclasses": True}}},
     },
     "BehavioralTimeSeries/": {
         "merge": ["<Interface>/", ],
         "description": ("TimeSeries for storing Behavoioral time series data."
             "See description of <a href=\"#BehavioralEpochs\">BehavioralEpochs</a> "
             "for more details.") ,
-        "include": {"<TimeSeries>/*": {}},
-    },   
+        # "include": {"<TimeSeries>/*": {}},
+        # to allow subclasses, replace the above include line with the following:
+        "include": {"<TimeSeries>/+":{"_options": {"subclasses": True}}},
+    },
     "Clustering/": {
         "merge": ["<Interface>/", ],
         "_description": ("Clustered spike data, whether from automatic clustering tools "
@@ -1537,7 +1547,7 @@
         "description": {
             "data_type": "text",
             "description": ("Description of clusters or clustering, (e.g. cluster 0 is noise, "
-                "clusters curated using Klusters, etc)")},   
+                "clusters curated using Klusters, etc)")},
         "cluster_nums": {
             "description": ("List of cluster number that are a part of this set (cluster "
                 "numbers can be non- continuous)"),
@@ -1554,7 +1564,7 @@
             "description": ("Maximum ratio of waveform peak to RMS on any channel in the cluster "
                 "(provides a basic clustering metric)."),
             "data_type": "float32",
-            "dimensions": ["num_clusters"]}     
+            "dimensions": ["num_clusters"]}
     },
     "ClusterWaveforms/": {
         "merge": ["<Interface>/", ],
@@ -1587,7 +1597,7 @@
         "clustering_interface/": {
             "description":  ("HDF5 link to Clustering interface that was the source of "
                 "the clustered data"),
-            "link": {"target_type": "Clustering/", "allow_subclasses": False } },
+            "link": {"target_type": "Clustering/", "allow_subclasses": True } },
         "clustering_interface_path": {
             "description":  "Path to linked clustering interface",
             "data_type": "text",
@@ -1596,8 +1606,8 @@
                 "target":"clustering_interface/",
                 "trim": False,
                 "qty": "!",
-                "format": "path is $t"}},
-    },       
+                "format": "$t"}},
+    },
     "CompassDirection/": {
         "merge": ["<Interface>/", ],
         "description": ("With a CompassDirection interface, a module publishes a SpatialSeries "
@@ -1612,7 +1622,8 @@
                 "indicate which direction corresponds to zero and what is the direction of positive "
                 "rotation"),
                 "const": True}},
-        "include": {"<SpatialSeries>/*": {} }, # One of possibly many SpatialSeries storing direction. Name should be informative
+        #  "include": {"<SpatialSeries>/*": {} }, # One of possibly many SpatialSeries storing direction. Name should be informative
+           "include": {"<SpatialSeries>/+": {"_options": {"subclasses": True}}}
     },
     "DfOverF/": {
         "merge": ["<Interface>/", ],
@@ -1625,7 +1636,8 @@
                 "value":("Df/f over time of one or more ROIs. TimeSeries names should correspond "
                     "to imaging plane names"),
                 "const": True}},
-        "include": {"<RoiResponseSeries>/*": {} }, # One of possibly many RoiResponseSeries, one for each 
+        # "include": {"<RoiResponseSeries>/*": {} }, # One of possibly many RoiResponseSeries, one for each
+        "include": {"<RoiResponseSeries>/+": {"_options": {"subclasses": True}} }
             #imaging plane. Name should match entry in /general/optophysiology
     },
     "EventDetection/": {
@@ -1638,7 +1650,7 @@
         "detection_method": {
             "description": ("Description of how events were detected, such as voltage"
                     " threshold, or dV/dT threshold, as well as relevant values."),
-            "data_type": "text"},                 
+            "data_type": "text"},
         "source_idx": {
             "description": ("Indices (zero-based) into source ElectricalSeries::data array "
                 "corresponding to time of event. Module description should define what is "
@@ -1652,7 +1664,7 @@
                 "Metadata about electrodes and their position can be read from that "
                 "ElectricalSeries so it's not necessary to mandate that information be "
                 "stored here"),
-            "link": {"target_type": "<ElectricalSeries>/", "allow_subclasses": False } },
+            "link": {"target_type": "<ElectricalSeries>/", "allow_subclasses": True } },
         "source_electricalseries_path": {
             "description": "Path to linked ElectricalSeries.",
             "data_type": "text",
@@ -1661,7 +1673,7 @@
                 "target": "source_electricalseries/",
                 "trim": False,
                 "qty": "!",
-                "format": "path is $t"}},
+                "format": "$t"}},
         },
     "EventWaveform/" : {
         "merge": ["<Interface>/", ],
@@ -1672,7 +1684,8 @@
                 "data_type":"text",
                 "value":("Waveform of detected extracellularly recorded spike events"),
                 "const": True}},
-        "include": {"<SpikeEventSeries>/*": {} },
+        # "include": {"<SpikeEventSeries>/*": {} },
+        "include": {"<SpikeEventSeries>/+": {"_options": {"subclasses": True}} },
     },
     "EyeTracking/" : {
         "merge": ["<Interface>/", ],
@@ -1682,7 +1695,8 @@
                 "data_type":"text",
                 "value": ("Eye-tracking data, representing direction of gaze"),
                 "const": True}},
-        "include": {"<SpatialSeries>/*": {} },
+        # "include": {"<SpatialSeries>/*": {} },
+        "include": {"<SpatialSeries>/+": {"_options": {"subclasses": True}} }
     },
     "FeatureExtraction/" : {
         "merge": ["<Interface>/", ],
@@ -1704,7 +1718,7 @@
         "description": {
             "description": "Description of features (eg, \"PC1\") for each of the extracted features.",
             "dimensions": ["num_features"],
-            "data_type": "text"},    
+            "data_type": "text"},
         "electrode_idx": {
             "description": ("Indices (zero-based) to electrodes described in the experiment's "
                 "electrode map array (under /general/extracellular_ephys)."),
@@ -1729,20 +1743,22 @@
                     "for gamma or theta oscillations (LFP has its own interface). Filter properties should "
                     "be noted in the ElectricalSeries"),
                 "const": True}},
-        "include": {"<ElectricalSeries>/+": {} },
+        # "include": {"<ElectricalSeries>/+": {} },
+        "include": {"<ElectricalSeries>/+": {"_options": {"subclasses": True}} },
     },
     "Fluorescence/" : {
         "merge": ["<Interface>/", ],
         "description": ("Fluorescence information about a region of interest (ROI). Storage hierarchy of "
             "fluorescence should be the same as for segmentation (ie, same names for ROIs and for image "
-            "planes)."), 
+            "planes)."),
         "attributes": {
             "help?": {
                 "data_type":"text",
                 "value": ("Fluorescence over time of one or more ROIs. TimeSeries names should correspond "
                     "to imaging plane names"),
                 "const": True}},
-        "include": {"<RoiResponseSeries>/+": {} }
+        # "include": {"<RoiResponseSeries>/+": {} }
+        "include": {"<RoiResponseSeries>/+": {"_options": {"subclasses": True}} }
     },
     "ImageSegmentation/" : {
         "merge": ["<Interface>/", ],
@@ -1756,7 +1772,7 @@
             "help?": {
                 "data_type":"text",
                 "value": ("Stores groups of pixels that define regions of interest from one or more "
-                    "imaging planes",),
+                    "imaging planes"),
                 "const": True}},
         "<image_plane>/*" : {
             "_description": "Group name is human-readable description of imaging plane",
@@ -1772,17 +1788,17 @@
                 "dimensions": ["num_rois"],
                 "references": "<roi_name>/",
                 "autogen": {
-				    "type": "names",
-				    "target":"<roi_name>",
-				    "trim": True,
-				    # "tsig": {"type": "group"}, # would be good to require member "times" data set.
-				    "qty": "*"}},
+                    "type": "names",
+                    "target":"<roi_name>",
+                    "trim": True,
+                    # "tsig": {"type": "group"}, # would be good to require member "times" data set.
+                    "qty": "*"}},
             "<roi_name>/*": {
                 "description": "Name of ROI",
                 "img_mask": {
                     "description": "ROI mask, represented in 2D ([y][x]) intensity image",
                     "data_type": "float32",
-                    "dimensions": ["num_x","num_y"]},
+                    "dimensions": ["num_y","num_x"]},
                 "pix_mask": {
                     "description": "List of pixels (x,y) that compose the mask",
                     "data_type": "uint16",
@@ -1802,7 +1818,7 @@
                 "<image_name>/+": {
                     "description": ("One or more image stacks that the masks apply "
                         "to (can be one-element stack)"),
-                    "merge": ["<ImageSeries>/",] }}
+                    "merge+": ["<ImageSeries>/",] }}
         },
     },
     "ImagingRetinotopy/": {
@@ -1843,7 +1859,7 @@
                     "dimensions": ["row_col",],
                     "description": "Size of viewing area, in meters",
                     "row_col" : {  # definition of dimension row_col
-                        "type": "structure", 
+                        "type": "structure",
                         "components": [
                             { "alias": "row", "unit": "meter"},
                             { "alias": "column", "unit": "meter" } ]}}}},
@@ -1961,7 +1977,7 @@
                 "field_of_view^": {
                     "data_type": "float",
                     "dimensions": ["row_col",],
-                    "description": "Size of viewing area, in meters"}}}                    
+                    "description": "Size of viewing area, in meters"}}}
     },
     "LFP/": {
         "merge": ["<Interface>/", ],
@@ -1974,7 +1990,8 @@
                 "value": ("LFP data from one or more channels. Filter properties should be "
                     "noted in the ElectricalSeries"),
                 "const": True}},
-        "include": {"<ElectricalSeries>/+": {}, },
+        # "include": {"<ElectricalSeries>/+": {}, },
+        "include": {"<ElectricalSeries>/+": {"_options": {"subclasses": True}} }
     },
     "MotionCorrection/": {
         "merge": ["<Interface>/", ],
@@ -2012,7 +2029,7 @@
                     "dimensions": ["num_times", "xy"], # specifies 2-d array
                     "data_type": "float",
                     "xy" : {  # definition of dimension xy
-                        "type": "structure", 
+                        "type": "structure",
                         "components": [
                             { "alias": "x", "unit": "pixels" },
                             { "alias": "y", "unit": "pixels" } ],
@@ -2022,7 +2039,7 @@
             "corrected/": {
                 "description": "Image stack with frames shifted to the common coordinates.",
                 #{ "include": {"<ImageSeries>/*": {} } }
-                "merge": ["<ImageSeries>/", ]
+                "merge+": ["<ImageSeries>/"]
             }
         },
     },
@@ -2034,7 +2051,8 @@
                 "data_type":"text",
                 "value":"Position data, whether along the x, xy or xyz axis",
                 "const": True}},
-        "include": {"<SpatialSeries>/+": {} },
+        # "include": {"<SpatialSeries>/+": {} },
+        "include": {"<SpatialSeries>/+": {"_options": {"subclasses": True}}}
     },
     "PupilTracking/": {
         "merge": ["<Interface>/", ],
@@ -2062,11 +2080,11 @@
             "data_type": "text",
             "dimensions": ["num_units"],
             "autogen": {
-				"type": "names",
-				"target":"<unit_N>",
-				"trim": True,
-				# "tsig": {"type": "group"}, # would be good to require member "times" data set.
-				"qty": "*"},
+                "type": "names",
+                "target":"<unit_N>",
+                "trim": True,
+                # "tsig": {"type": "group"}, # would be good to require member "times" data set.
+                "qty": "*"},
             "references": "<unit_N>/"},  # 1-to-1 is relationship type. To be implemented.
         "<unit_N>/+": {
             "description": "Group storing times for &lt;unit_N&gt;.",
@@ -2154,9 +2172,9 @@
     </ul>
     <p style="margin-bottom: 0in"><br>
     </p>
-    <p style="margin-bottom: 0in"><a href="https://www.hdfgroup.org/HDF5/"><font
-          color="#0000ff"><u>Hierarchical
-            Data Format (HDF)</u></font></a> was selected for the NWB format
+    <p style="margin-bottom: 0in">
+    <a href="https://www.hdfgroup.org/HDF5/">Hierarchical Data Format (HDF)</a>
+      was selected for the NWB format
       because it met several of the project's requirements. First, it is
       a mature data format standard with libraries available in multiple
       programming languages. Second, the format's hierarchical structure
@@ -2167,7 +2185,7 @@
       authorities' identifiers. Third, its linking feature enables data
       stored in one location to be transparently accessed from multiple
       locations in the hierarchy. The linked data can be external to the
-      file. Fourth, 
+      file. Fourth,
       <a href="https://www.hdfgroup.org/products/java/hdfview/">HDFView</a>,
       a free, cross-platform application, can be used to open a file and
       browse data. Finally, ensuring the ongoing accessibility of
@@ -2182,7 +2200,7 @@
       each revision of the NWB format standard. Data publishers can use the
       specification language to extend the format in order to store types
       of data not managed by the base format.
-      </p>      
+      </p>
     """
     },
     {
@@ -2192,13 +2210,13 @@
         "content": """
         <p>
         In this document (and in the specification language used to define
-        the format) an identifier enclosed in angle brackets (e.g. 
+        the format) an identifier enclosed in angle brackets (e.g.
         "<i>&lt;ElectricalSeries&gt;</i>")
         denotes a group or dataset with a "variable" name. That is, the name
         within the HDF5 file is set by the application
         creating the file and multiple instances may be created within the same
         group (each having a unique name).
-        Identifiers that are not enclosed in angle brackets 
+        Identifiers that are not enclosed in angle brackets
         (e.g. "<i>CompassDirection</i>") are
         the actual name of the group or dataset within the HDF5 file.
         There can only be one instance within a given group since the name is fixed.
@@ -2253,7 +2271,7 @@
       <br />
       <p style="margin-bottom: 0in">The content of these organizational
       groups is more fully described in the section titled,
-      <a href="#File_organization">File organization</a>. 
+      <a href="#File_organization">File organization</a>.
       The NWB format is
       based on <i><a href="#TimeSeries">TimeSeries</a></i>
       and <i><a href="#Modules">Modules</a></i> and these are defined first. </p>
@@ -2305,7 +2323,7 @@
     unsigned), so long as the selected size encompasses the full range of
     data, and for floats, without loss of significant precision.  Fields that have
     a minimum size can use larger, but not smaller sizes.
-    </p>       
+    </p>
         """
     },
     {
@@ -2367,8 +2385,8 @@
       what is required by the specification. I.e., an end user is free to
       add additional key/value pairs as necessary for their needs. It
       should be noted that such lab-specific extensions may not be
-      recognized by analysis tools/scripts existing outside the lab. 
-      Extensions are described in section 
+      recognized by analysis tools/scripts existing outside the lab.
+      Extensions are described in section
       <a href="#Extending_the_format">Extending the format</a>).</p>
     <p style="margin-bottom: 0in"><br>
     </p>
@@ -2393,8 +2411,8 @@
       more narrowly focused modalities (e.g., electrical versus optical
       physiology) as well as new modalities (eg, video tracking of whisker
       positions). When it a <i>TimeSeries</i> is subclassed, new datasets
-      can be added while all datasets of parent classes are 
-      either preserved as specified in the parent class 
+      can be added while all datasets of parent classes are
+      either preserved as specified in the parent class
       or replaced by a new definition (changed).  In the tables
       that follow, identifiers in the "Id" column that change the definition in
       the parent
@@ -2402,7 +2420,7 @@
       initial set of subclasses are described here. Users are free to
       define subclasses for their particular requirements. This can be done
       by creating an extension to the format defining a
-      new <i>TimeSeries</i> subclass (see  
+      new <i>TimeSeries</i> subclass (see
       <a href="#Extending_the_format">Extending the format</a>).</p>
     <p style="margin-bottom: 0in">All datasets that are defined to be
       part of TimeSeries have the text attribute 'unit' that stores the
@@ -2411,25 +2429,25 @@
     },
     {
         "id": "Modules",
-        "description": "Text placed before <Interface>/, included in table of contents",
-        "location": {"id": "<Interface>", "position": "before"},
+        "description": "Text placed before <Module>/, included in table of contents",
+        "location": {"id": "<Module>", "position": "before"},
         "level": 0,
         "content": """
          <p>
-        NWB uses <i>modules</i> to store data for&mdash;and represent the results of&mdash;common 
-        data processing steps, such as spike sorting and image segmentation, that occur 
+        NWB uses <i>modules</i> to store data for&mdash;and represent the results of&mdash;common
+        data processing steps, such as spike sorting and image segmentation, that occur
         before scientific analysis of the data.  Modules store the data
       used by software tools to calculate these intermediate results. Each
       module provides a list of the data it makes available, and it is free
       to provide whatever additional data that the module generates.
       Additional documentation is required for data that goes beyond
-      standard definitions.  All modules are stored directly under 
+      standard definitions.  All modules are stored directly under
         group <a href="#/processing">/processing</a>.  The name of each module
         is chosen by the data provider (i.e. modules have a "variable" name).
         The particular data within each module is specified by one or more
         <i>interfaces</i>, which are groups residing directly within a module.
-        Each interface extends (contains the attributes in) group 
-        <a href="#<Interface>"><i>&lt;Interface&gt;</i></a> and has a fixed 
+        Each interface extends (contains the attributes in) group
+        <a href="#%3CInterface%3E"><i>&lt;Interface&gt;</i></a> and has a fixed
         name (e.g. <i>ImageSegmentation</i>) that suggests the
         type of data it contains.  The names of the interfaces within a given
         module are listed in the "interfaces" attribute for the module.
@@ -2457,22 +2475,20 @@
         "location": {"id":"_toc_bottom", "position": "after"},
         "level": 0,
         "content": """
-        
+
         <p>
         The data organization presented in this document constitutes the <i>core</i> NWB
         format.  Extensibility is handled by allowing users to store additional
         data as necessary using new datasets, attributes or groups.  There are
         two ways to document these additions.  The first is to add an attribute
-        "schema_id" with value the string "Custom" to the additional groups
+        "neurodata_type" with value the string "Custom" to the additional groups
         or datasets, and provide documentation to describe the extra data if
         it is not clear from the context what the data represent.  This method
         is simple but does not include a consistant way to describe
         the additions.  The second method is to write an
         <i>extension</i> to the format.  With this method, the additions are
         describe by the extension and attribute "schema_id" is set to
-      the string "<i>namespace</i>:<i>id</i>" where <i>namespace</i>
-      is the namespace of the extension, and <i>id</i>
-      is the identifier of the structure within the namespace.
+      the schema_id associated with the extension.
       Extensions to the format are written
         using the same specification language that is used to define the
         core format.  Creating an extension allows adding the new data to the file
@@ -2500,30 +2516,90 @@ New York University School of Medicine, and the University of
 California, Berkeley. Ovation.io is our founding development partner.
 Ken Harris at University College London provided invaluable input and
 advice.</p>
-<p style="margin-bottom: 0in"><br/>
        """
       },{
     "id": "Change history",
         "location": {"id":"Acknowledgements", "position": "after"},
         "level": 0,
         "content": """
-<p style="margin-bottom: 0in">1.0.3-Beta June 2016</p>
-<p>Generate documentation directly from format specification file."<br />
-Change ImageSeries external_file to an array.  Added attribute
-starting_frame.<br />
-Made TimeSeries description and comments recommended.<br />
-<p style="margin-bottom: 0in">Added IZeroClampSeries.`</p>
-<p style="margin-bottom: 0in"><br/>
+ <p style="margin-bottom: 0in">1.0.5g_beta, Oct 7, 2016</p>
+ <p>Replace group options: autogen: {"type": "create"} and
+ "_closed": True with
+ "_properties": {"create": True} and "_properties": {"closed": True}.
+ This done to make the specification language more
+ consistent by having these group properties specified in one place
+ ("_properties" dictionary).</p>
+ <p style="margin-bottom: 0in"></p><br/>
 
+ <p style="margin-bottom: 0in">1.0.5f_beta, Oct 3, 2016</p>
+ <p>Minor fixes to allow validation of schema using json-schema
+ specification in file "meta-schema.py" using utility
+ "check_schema.py".</p>
+ <p style="margin-bottom: 0in"></p><br/>
+ 
+ <p style="margin-bottom: 0in">1.0.5e_beta, Sept 22, 2016</p>
+ <p>Moved definition of &lt;Module&gt;/ out of /processing group to allow
+ creating subclasses of Module.  This is useful for making custom
+ Module types that specified required interfaces.  Example of
+ this is in python-api/examples/create_scripts/module-e.py and
+ the extension it uses (extensions/e-module.py).</p>
+ <p>Fixed malformed html in nwb_core.py documentation.</p>
+ <p>Changed html generated by doc_tools.py to html5 and fixed so
+ passes validation at https://validator.w3.org.</p>
+ <p style="margin-bottom: 0in"></p><br/>
+
+ <p style="margin-bottom: 0in">1.0.5d_beta, Sept 6, 2016</p>
+ <p>Changed ImageSeries img_mask dimensions to:<br />
+ "dimensions": ["num_y","num_x"]<br />
+ to match description.</p>
+ <p style="margin-bottom: 0in"></p><br/>
+
+ <p style="margin-bottom: 0in">1.0.5c_beta, Aug 17, 2016</p>
+ <p>Change IndexSeries to allow linking to any form of TimeSeries, not just
+ an ImageSeries</p>
+ <p style="margin-bottom: 0in"></p><br/>
+ <p style="margin-bottom: 0in">1.0.5b_beta, Aug 16, 2016</p>
+ <ul>
+<li>Make 'manifold' and 'reference_frame' (under /general/optophysiology)
+recommended rather than required.</li>
+<li>In all cases, allow subclasses of a TimeSeries to fulfill validation requirements
+ when an instance of TimeSeries is required.</li>
+<li>Change unit attributes in VoltageClampSeries series datasets from
+required to recommended.</li>
+<li>Remove 'const'=True from TimeSeries attributes in AnnotationSeries and IntervalSeries.</li>
+<li>Allow the base TimeSeries class to store multi-dimensional arrays in 'data'.
+  A user is expected to describe the contents of 'data' in the comments
+  and/or description fields.</li>
+</ul>
+<p style="margin-bottom: 0in"></p><br/>
+
+<p style="margin-bottom: 0in">1.0.5a_beta, Aug 10, 2016</p>
+<p>Expand class of Ids allowed in TimeSeries missing_fields
+attribute to allow custom uses.<br />
+<p style="margin-bottom: 0in"></p><br/>
+
+<p style="margin-bottom: 0in">1.0.5_beta Aug 2016</p>
+<p>Allow subclasses to be used for merges instead of base class (specified by
+'merge+' in format specification file).<br />
+Use 'neurodata_type=Custom' to flag additions that are not describe
+by a schema.<br />
+Exclude TimeSeries timestamps and starting time from under
+/stimulus/templates<br />
+<p style="margin-bottom: 0in"></p><br/>
+
+<p style="margin-bottom: 0in">1.0.4_beta June 2016</p>
+<p>Generate documentation directly from format specification file."<br />
+Change ImageSeries external_file to an array.<br />
+Made TimeSeries description and comments recommended.<br />
+<p style="margin-bottom: 0in"></p><br/>
 
 <p style="margin-bottom: 0in">1.0.3 April, 2016</p>
 <p>Renamed "ISI_Retinotopy" to "ISIRetinotopy"<br />
 Change ImageSeries external_file to an array.  Added attribute
 starting_frame.<br />
 <p style="margin-bottom: 0in">Added IZeroClampSeries.</p>
-<p style="margin-bottom: 0in"><br/>
+<p style="margin-bottom: 0in"></p><br/>
 
-</p>
 <p style="margin-bottom: 0in">1.0.2 February, 2016</p>
 <p style="margin-bottom: 0in">Fixed documentation error, updating
 'neurodata_version' to 'nwb_version'</p>
@@ -2537,9 +2613,8 @@ Current/VoltageClampSeries to parent PatchClampSeries, due need of
 stimuli to sometimes store gain</p>
 <p style="margin-bottom: 0in">Added Ken Harris to the
 Acknowledgements section</p>
-<p style="margin-bottom: 0in"><br/>
+<p style="margin-bottom: 0in"></p><br/>
 
-</p>
 <p style="margin-bottom: 0in">1.0.1 October 7th, 2015</p>
 <p style="margin-bottom: 0in">Added 'required' field to tables in the
 documentation, to indicate if group/dataset/attribute is required,
@@ -2558,23 +2633,11 @@ sizes for floats are minimum sizes</p>
 <p style="margin-bottom: 0in">Added text to the documentation stating
 that, if the TimeSeries::data::resolution attribute value is unknown
 then store a NaN</p>
-<p style="margin-bottom: 0in"><br/>
-
-</p>
-<p style="margin-bottom: 0in">1.0.0 September 28<sup>th</sup>, 2015</p>
-<p style="margin-bottom: 0in">Convert document to .html</p>
-<p style="margin-bottom: 0in"><br/>
-
-</p>
-<p style="margin-bottom: 0in"><font size="5" style="font-size: 18pt"><b>Design
-notes</b></font></p>
-<p style="margin-bottom: 0in"><b>1.0.1</b></p>
 <p style="margin-bottom: 0in">Declaring the following groups as
-required (this was implicit before) 
+required (this was implicit before)
 </p>
-<p style="margin-bottom: 0in"><br/>
+<p style="margin-bottom: 0in"></p><br/>
 
-</p>
 <p style="margin-bottom: 0in">acquisition/</p>
 <p style="margin-bottom: 0in">_ images/</p>
 <p style="margin-bottom: 0in">_ timeseries/</p>
@@ -2585,9 +2648,8 @@ required (this was implicit before)
 <p style="margin-bottom: 0in">stimulus/</p>
 <p style="margin-bottom: 0in">_ presentation/</p>
 <p style="margin-bottom: 0in">_ templates/</p>
-<p style="margin-bottom: 0in"><br/>
+<p style="margin-bottom: 0in"></p><br/>
 
-</p>
 <p style="margin-bottom: 0in">This is to ensure consistency between
 .nwb files, to provide a minimum expected structure, and to avoid
 confusion by having someone expect time series to be in places
@@ -2600,17 +2662,23 @@ Subfolders in 'general/' are only to be included as needed. Scanning
 is about, so only domain-relevant subfolders should be present (e.g.,
 'optogenetics' and 'optophysiology'). There should always be a
 'general/devices', but it doesn't seem worth making it mandatory
-without making all subfolders mandatory here. 
+without making all subfolders mandatory here.
 </p>
-<p style="margin-bottom: 0in"><br/>
+<p style="margin-bottom: 0in"></p><br/>
 
-</p>
+<p style="margin-bottom: 0in">1.0.0 September 28<sup>th</sup>, 2015</p>
+<p style="margin-bottom: 0in">Convert document to .html</p>
+<p style="margin-bottom: 0in"></p>
+
 <p style="margin-bottom: 0in">TwoPhotonSeries::imaging_plane was
 upgraded to mandatory to help enforce inclusion of important metadata
 in the file.</p>
-<p style="margin-bottom: 0in"><br/>
-
-</p>
+"""
+     },{
+    "id": "Design notes",
+        "location": {"id":"Change history", "position": "after"},
+        "level": 0,
+        "content": """
 <p style="margin-bottom: 0in">The listed size of integers is the
 suggested size. What's important for integers is simply that the
 integer is large enough to store the required data, and preferably
@@ -2620,30 +2688,21 @@ why doubles (float64) are stated in some places. Because floating
 point sizes are provided, integer sizes are provided as well.</p>
 <p style="margin-bottom: 0in"><br/>
 
-</p>
 <p style="margin-bottom: 0in"><b>Why do timestamps_link and data_link
 record linking between datasets, but links between epochs and
 timeseries are not recorded?</b></p>
-<p style="margin-bottom: 0in; font-variant: normal; letter-spacing: normal; font-style: normal; font-weight: normal">
-<font color="#000000"><font face="Calibri, Arial, Helvetica, sans-serif"><font size="3" style="font-size: 12pt">Epochs
-have a hardlink to entire timeseries (ie, the HDF5 group). If 100
+<p>Epochs have a hardlink to entire timeseries (ie, the HDF5 group). If 100
 epochs link to a time series, there is only one time series. The data
 and timestamps within it are not shared anywhere (at least from the
-epoch linking). <font face="Calibri, Arial, Helvetica, sans-serif, Apple Color Emoji, Segoe UI Emoji, NotoColorEmoji, Segoe UI Symbol, Android Emoji, EmojiSymbols">An
-epoch is an entity that is put in for convenience and annotation so
+epoch linking). An epoch is an entity that is put in for convenience and annotation so
 there isn't necessarily an important association between what epochs
-link to what time series (all epochs could link to all time series).</font></font></font></font></p>
-<p style="margin-bottom: 0in; font-variant: normal; letter-spacing: normal; font-style: normal; font-weight: normal; orphans: 1">
-<br/>
+link to what time series (all epochs could link to all time series).</p>
 
-</p>
-<p style="margin-bottom: 0in; font-variant: normal; letter-spacing: normal; font-style: normal; font-weight: normal; orphans: 1">
-<font color="#000000"><font face="Calibri, Arial, Helvetica, sans-serif"><font size="3" style="font-size: 12pt">The
-timestamps_link and data_link fields refer to links made between time
+<p>The timestamps_link and data_link fields refer to links made between time
 series, such as if timeseries A and timeseries B, each having
 different data (or time) share time (or data). This is much more
 important information as it shows structural associations in the
-data.</font></font></font></p>
+data.</p>
         """
       }
 ]

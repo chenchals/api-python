@@ -8,7 +8,7 @@ import datetime
 def load_file(filename):
     """ Load content of a file.  Useful 
     for setting metadata to content of a text file"""
-    f = open(filename, 'r')
+    f = open(filename)
     content = f.read()
     f.close()
     return content
@@ -302,10 +302,9 @@ def add_roi_mask_pixels(seg_iface, image_plane, name, desc, pixel_list, weights,
     # create image out of pixel list
     img = np.zeros((height, width))
     for i in range(len(pixel_list)):
-        y = pixel_list[i][0]
-        x = pixel_list[i][1]
-        # img[y][x] = weights[i]
-        img[x][y] = weights[i]
+        x = pixel_list[i][0]
+        y = pixel_list[i][1]
+        img[y][x] = weights[i]
     add_masks(seg_iface, image_plane, name, desc, pixel_list, weights, img, start_time)
         
         
@@ -333,6 +332,7 @@ def add_roi_mask_img(seg_iface, image_plane, name, desc, img, start_time=0):
     """
     # create pixel list out of image
     pixel_list = []
+    weights = []
     for y in range(len(img)):
         row = img[y]
         for x in range(len(row)):

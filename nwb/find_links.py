@@ -314,6 +314,7 @@ def merge_soft_and_hard_links(links):
             # found target in hard link link-group
             hloc = hpath2loc[target]
             # include members of hard link-group in soft link-group and delete hard link-group
+            hl[hloc].remove(target)
             sl[target].extend(hl[hloc])
             del hl[hloc]
             merged.append(hloc)
@@ -792,7 +793,7 @@ def validate_link(f, source, target):
                 # see if match to a subclass
                 subclasses = target.merged if hasattr(target, 'merged') else []
                 if expected_target_type not in subclasses:
-                    error.append("%s - link target_type (%s) does not match target type (%s) or subclasses (%s) at: %s" %
+                    error.append("%s - link expected target_type (%s) does not match found target type (%s) or ancestors %s at: %s" %
                         (source.full_path, expected_target_type, target_type, subclasses, target.full_path))
                 else:
                     # is OK, matches subclass
@@ -805,15 +806,20 @@ def validate_link(f, source, target):
             warning.append("%s - target type of link not specified.  Linking to type '%s' at: %s" %
                 (source.full_path, target_type, target.full_path))
     else:
-        # no link spec see if type of items match
-        source_type = f.make_qid(source.sdef['id'], source.sdef['ns'])
-        if source_type != target_type:
-            warning.append("%s - type (%s) is linked to a different type (%s) at: %s" %
-                (source.full_path, source_type, target_type, target.full_path))
-            # import pdb; pdb.set_trace()
+        # no link spec
+        # check for custom link
+        if 'custom' in source.sdef and source.sdef['custom']:
+            warning.append("%s - unable to validate custom link to: %s" %
+                (source.full_path, target.full_path))
         else:
-            # perfect match
-            pass
+            # see if type of items match
+            source_type = f.make_qid(source.sdef['id'], source.sdef['ns'])
+            if source_type != target_type:
+                warning.append("%s - type (%s) is linked to a different type (%s) at: %s" %
+                    (source.full_path, source_type, target_type, target.full_path))
+            else:
+                # perfect match
+                pass
 
 # def initialize_autogen():
 #     """ Setup structure for storing autogen information.  Looks like:
@@ -842,9 +848,15 @@ def check_for_autogen(dict, aid, path, ctype, f):
 #     print "check for autogen, aid=%s" % aid
 #     if aid == "missing_fields":
 #         import pdb; pdb.set_trace()
-    if 'autogen' not in dict:
+    if 'autogen' in dict:
+        agspec = dict['autogen']
+    elif (ctype == 'group' and '_properties' in dict and 'create' in dict['_properties']
+        and dict['_properties']['create']):
+        # found "_properties": {"create": True}.  Treat this as "autogen": {"type": "create"}
+        agspec = {"type": "create"}
+    else:
+        # autogen not found
         return False
-    agspec = dict['autogen']
     type = get_param(agspec, 'type', None)
     target = get_param(agspec, 'target', None)
     trim = get_param(agspec, 'trim', False)
@@ -852,6 +864,7 @@ def check_for_autogen(dict, aid, path, ctype, f):
     qty = get_param(agspec, 'qty', "*")
     tsig = get_param(agspec, 'tsig', {})
     include_empty = get_param(agspec, 'include_empty', False)
+    allow_others = get_param(agspec, 'allow_others', False)
     format = get_param(agspec, 'format', "$t")
     # dimensions used to determine if result is an array or a single string
     # if dimensions present, then array, otherwise a single string
@@ -860,21 +873,22 @@ def check_for_autogen(dict, aid, path, ctype, f):
     error = []
     ag_types = ('links', 'link_path', "names", "values", "length", "create", "missing", "extern")
     if type not in ag_types:
-        error.append("Invalid autogen specification. (%s). Type must be one of: %s" % (agspec, ag_types)) 
+        error.append("Type must be one of: %s" % ag_types) 
     if target is None and type not in ('create', 'missing', "extern"):
-        error.append("Invalid 'autogen' specification.  'target' must be specified: %s" % agspec)
+        error.append("'target' must be specified")
     if trim not in (True, False):
-        error.apped("Invalid 'autogen' specification.  'trim' must be True or False: %s" % agspec)
+        error.apped("'trim' must be True or False")
     if sort not in (True, False):
-        error.apped("Invalid 'autogen' specification.  'sort' must be True or False: %s" % agspec)
+        error.apped("'sort' must be True or False")
     if qty not in ("!", "*"):
-        error.apped("Invalid 'autogen' specification.  'qty' must be '!' or '*': %s" % agspec)
+        error.apped("'qty' must be '!' or '*'")
     if error:
+        error = "Invalid 'autogen' specification. %s: %s" % ("; ".join(error), agspec)
         f.error.append(error)
     else:
         a = {'node_path':path, 'aid': aid, 'agtarget':target, 'agtype':type, 'format':format,
         'trim':trim, 'sort':sort, 'qty':qty, 'tsig':tsig, 'include_empty':include_empty,
-        'ctype':ctype, 'dimensions': dimensions}
+        'ctype':ctype, 'dimensions': dimensions, 'allow_others': allow_others}
         f.autogen.append(a)
     return True
     
@@ -955,35 +969,6 @@ def update_autogens(f, op, ftype):
             update_autogen(f, a)   # singular, not plural
 
     
-
-# def compute_autogen(f):
-#     """ Computes values for each autogen saved in f.autogen.  f is the hfgate File
-#     object.  Stores the computed values in array autogen[a]['agvalue']."""
-#     # first, create any datasets that have autogen, but were not created
-# #    create_autogen_datasets(f)
-#     # now process all found autogens
-#     # first put all type "missing" at the end so these are
-#     # run after all the others.  Otherwise, they may flag as missing values filled in
-#     # by other autogen's
-#     ag_all = []
-#     ag_last = []
-#     for ag in f.autogen:
-#         if ag['agtype'] == 'missing':
-#             ag_last.append(ag)
-#         else:
-#             ag_all.append(ag)
-#     # store back in f.autogen because more may be added when running the autogens
-#     f.autogen = ag_all + ag_last
-#     # use index to go though so new ones can be added within the loop
-#     # for a in f.autogen:  # old method
-#     show_autogen(f)
-#     print "starting to compute autogen, num augogens = %i" % len(f.autogen)
-#     import pdb; pdb.set_trace()
-#     i = 0
-#     while i < len(f.autogen):
-#         a = f.autogen[i]
-#         compute_autogen_1(f, a)
-#         i = i + 1     
 
 
 def remove_prefix(text, prefix):
@@ -1190,11 +1175,22 @@ def compute_autogen(f, a):
                 # leave value undetermined.  Require user set it.
                 return
             else:
-                print "Unexpected node type in autogen length, type=%s, target=%s" % (ntype, target)
-                # import pdb; pdb.set_trace()
-                sys.exit(1)
+                msg = "%s: autogen unable to determine length of '%s' because unable to retrieve value." % (
+                    a['node_path'], path)
+                f.warning.append(msg)
+                return
+#                 print "Unexpected node type in autogen length, type=%s, target=%s" % (ntype, target)
+#                 # import pdb; pdb.set_trace()
+#                 sys.exit(1)
         else:
-            length = len(val)
+            try:
+                length = len(val)
+            except TypeError, e:
+                msg = "%s: autogen unable to determine length of '%s' error is: '%s'" % (
+                    a['node_path'], path, e)
+                f.warning.append(msg)
+                # leave value unspecified
+                return
         a['agvalue'] = length
     else:
         sys.exit("invalid autogen specification type: %s" % a['agtype'])
@@ -1228,19 +1224,75 @@ def process_ag_create(f, a, enclosing_node):
     # create the group
     enclosing_node.make_group(gid)
 
-
 def process_ag_missing(f, a, enclosing_node):
     """ process autogen "missing" type.  This returns a list datasets
-    that are specified as required and do not exist.
+    that are specified as required or recommended and do not exist.
     """
+#     if enclosing_node.full_path == "/processing/brain_observatory_pipeline/MotionCorrection/2p_image_series/corrected":
+#         import pdb; pdb.set_trace()
     missing = []
+    # get list of nodes referenced in any _required specification
+    required_info = f.get_required_info(enclosing_node)
+    required_id_status = required_info['id_status'] if required_info else {}
+    exclude_info = f.get_exclude_info(enclosing_node)
+    if required_info:
+        # has a '_required' specification.  See if it evaluates to False
+        required_spec = required_info['spec']
+        ce = f.eval_required(enclosing_node, required_spec, required_id_status)
+        # ce will be a tuple if an error, or None if no error
+        required_has_error = not (ce is None)
     for mid in enclosing_node.mstats:
         minfo = enclosing_node.mstats[mid]
-        if minfo['qty'] in ('!', '^', '+') and not minfo['created']:
+        exists = len(minfo['created']) > 0
+        if exists:
+            # this was created, it's not missing
+            continue
+        df = minfo['df']
+        loc = enclosing_node.full_path
+        excluded = exclude_info and mid in exclude_info['ids']
+        if excluded:
+            # location is in the _exclude_in specification for the enclosing node.
+            # so it should not be present (it's not missing)
+            continue
+        if mid in required_id_status:
+            # this mid is referenced in the _required spec.  If the required spec is
+            # not detecting an error, then it's not missing
+            if not required_has_error:
+                continue
+            # There is an error detected by required spec, see if adding this variable would
+            # remove the error.  If so, then it's missing.  If not, assume it's not missing.
+            assert required_id_status[mid] == False, ("required_var_status for '%s' should be"
+                " False since it's not created") % mid
+            required_id_status[mid] = True
+            ce = f.eval_required(enclosing_node, required_spec, required_id_status)
+            required_id_status[mid] = False
+            if ce:
+                # still have an error, assume not missing
+                continue
+            # error was removed, it is missing
+            missing.append(mid)
+            continue
+        # finally, check quantity info
+        if minfo['qty'] in ('!', '^', '+'):
             # member was required but does not exists
             missing.append(mid)
-    if missing:
-        a['agvalue'] = sorted(missing)
+    a['agvalue'] = sorted(missing)
+#     if missing:
+#         a['agvalue'] = sorted(missing)
+#         print "set agvalue to '%s'" % a['agvalue']
+
+# def process_ag_missing_old(f, a, enclosing_node):
+#     """ process autogen "missing" type.  This returns a list datasets
+#     that are specified as required or recommended and do not exist.
+#     """
+#     missing = []
+#     for mid in enclosing_node.mstats:
+#         minfo = enclosing_node.mstats[mid]
+#         if minfo['qty'] in ('!', '^', '+') and not minfo['created']:
+#             # member was required but does not exists
+#             missing.append(mid)
+#     if missing:
+#         a['agvalue'] = sorted(missing)
 
 def process_ag_extern(f, a, enclosing_node):
     """ Process autogen "extern" type.  This returns a list of
@@ -1290,6 +1342,16 @@ def trim_common_basename(paths, basename):
         assert suffix == basename, "Path '%s' does not have common suffix '%s'" % (path, basename)
         new_list.append(prefix)
     return new_list
+
+def get_plural(arr):
+    """ return plural or singular forms for making a message.
+    plural: identifiers are
+    singular: identifier is
+    """
+    if len(arr) > 1:
+        return ('s', 'are')
+    return ('', 'is')
+        
     
 def values_match(x, y):
     """ Compare x and y.  This needed because the types are unpredictable and sometimes
@@ -1300,7 +1362,6 @@ def values_match(x, y):
     # explicit checks for None used to prevent warnings like:
     # FutureWarning: comparison to `None` will result in an elementwise object comparison in the future.
     # eq = x==y
-
     if x is None:
         if y is None:
             return True
@@ -1308,6 +1369,20 @@ def values_match(x, y):
             return False
     if y is None:
         return False
+    # compare arrays so corresponding NaN values are treated as a match
+    if (isinstance(x, np.ndarray) and isinstance(y, np.ndarray)
+        and np.issubdtype(x.dtype, np.float) and np.issubdtype(y.dtype, np.float)):
+        # from: http://stackoverflow.com/questions/10710328/comparing-numpy-arrays-containing-nan
+        try:
+            np.testing.assert_equal(x,y)
+        except AssertionError:
+            return False
+        return True
+    # check for two scalar NaN.  If found, treat as match
+    if (np.issubdtype(type(x), np.float) and np.issubdtype(type(y), np.float)
+        # and x.shape == () and y.shape == ()
+        and np.isnan(x) and np.isnan(y)):
+        return True
     try:
         eq = x==y
     except ValueError:
@@ -1316,6 +1391,15 @@ def values_match(x, y):
     if isinstance(eq, bool):
         return eq
     return eq.all()
+    
+    
+    
+def val_is_int(val):
+    """return True if value is type int or numpy int"""
+    is_int = (isinstance(val, int)
+        or (type(val).__module__ == 'numpy' and np.issubdtype(val, np.integer)))
+    return is_int
+    
   
 #     if x is y:
 #         return True
@@ -1398,7 +1482,6 @@ def validate_autogen(f):
 #                     "but is empty") % (a['node_path'], aid))
         else:
             # value is stored in value of a dataset
-            # TODO: change to buffer value in node so can work with MATLAB
             if a['node_path'] in f.file_pointer:
             # data set exists
                 ds = f.file_pointer[a['node_path']]
@@ -1425,36 +1508,101 @@ def compare_autogen_values(f, a, value):
     a - row of f.autogen
     value - value in (or being stored in) hdf5 file for autogen field
     """
+#     if a['node_path'] == '/processing/brain_observatory_pipeline/DfOverF/imaging_plane_1/num_samples':
+#         import pdb; pdb.set_trace()
+    if value is None and not a['agvalue'] and not a['include_empty']:
+        # was no value and should not be since agvalue is False
+        # and include_empty is None
+        # So don't bother comparing (it's ok because nothing was stored and nothing
+        # should be stored).
+        return
     if values_match(value, a['agvalue']):
         # value match, check for value required but missing
         if value is None and a['qty'] == '!':
             msg = "value required but is empty."
-            report_autogen_problem(f, a, msg)
+            report_autogen_problem(f, a, msg, "error")
         return
-    # values do not match, check if match when values are sorted
+    # values do not match
+    # check for autogen "missing" type with option "allow_others"
+    if a['agtype'] == 'missing' and a['allow_others']:
+        try:
+            is_string_list = all(isinstance(item, (basestring, np.string_)) for item in value)
+        except TypeError as e:
+            is_string_list = False
+        if is_string_list:
+            value_set = set(value)
+            agv_set = set(a['agvalue'])  
+            additions = sorted(list(value_set - agv_set if value_set > agv_set else set()))
+            if additions:
+                # make sure none of the additions are actually present
+                enclosing_node = f.path2node[a['node_path']]
+                added_invalid = []
+                for id in additions:
+                    if (id in enclosing_node.mstats and enclosing_node.mstats[id]['created']) or (
+                        id+"/" in enclosing_node.mstats and enclosing_node.mstats[id]['created']):
+                        added_invalid.append(id)
+                if added_invalid:
+                    import pdb; pdb.set_trace()      
+                    plural_s, plural_are = get_plural(added_invalid)
+                    msg = ("contains identifier%s %s which %s actually present.\n"
+                        "expected:%s\n"
+                        "found:%s") % (plural_s, added_invalid, plural_are, a['agvalue'], value)
+                    report_autogen_problem(f, a, msg, 'error')
+                else:
+                    plural_s, plural_are = get_plural(additions)
+                    msg = ("contains identifier%s %s that %s not recommended or required.\n"
+                        "expected:%s\n"
+                        "found:%s") % (plural_s, additions, plural_are, a['agvalue'], value)
+                    report_autogen_problem(f, a, msg, 'warning')
+                return
+    # check for link_path missing leading '/'
+    if a['agtype'] == 'link_path' and (isinstance(a['agvalue'], str) and
+        isinstance(value, str) and a['agvalue'].startswith('/') and
+        a['agvalue'][1:] == value):
+        # link path's match except for leading slash, make a warning
+        msg = 'path correct, but missing leading "/": \'%s\'' % value
+        report_autogen_problem(f, a, msg, 'warning')
+        return
+    # check if match when values are sorted
     if isinstance(value, (list, np.ndarray)):
         sorted_value = natural_sort(value)
         if values_match(sorted_value, a['agvalue']):
             # sorted values match
             if a['sort']:
-                msg = "values are correct, but not sorted."
-                report_autogen_problem(f, a, msg)
+                msg = ("values are correct, but not sorted:\n"
+                    "expected:%s (type %s)\n"
+                    "found:%s (type %s)") % (a['agvalue'], 
+                    type(a['agvalue']), value, type(value))
+                report_autogen_problem(f, a, msg, 'warning')
             return
     # neither original or sorted values match
-    msg = ("values incorrect.\nexpected:%s (type %s)\n"
-        "found:%s (type %s)") % (a['agvalue'], type(a['agvalue']), value, type(value))
-    report_autogen_problem(f, a, msg)
+    if a['agtype'] == 'length' and val_is_int(value):
+        # display warnings for lengths different than expected (this is
+        # done for NWB format, since length only used in one place, e.g.
+        # timeseries num_samples.  Should modify specification language
+        # to allow specifying either a warning or an error in autogen
+        severity = 'warning'
+    else:
+        severity = 'error'
+    edesc = "unexpected" if severity == "warning" else "incorrect"
+    msg = ("values %s.\nexpected:%s (type %s)\n"
+        "found:%s (type %s)") % (edesc, a['agvalue'], type(a['agvalue']), value, type(value))
+    report_autogen_problem(f, a, msg, severity)
     
     
-def report_autogen_problem(f, a, msg):
+def report_autogen_problem(f, a, msg, severity):
+    assert severity in ('warning', 'error')
     if a['aid']:
         # value stored in attribute
         aid = a['aid']
-        f.error.append("'%s': autogen attribute [%s] %s" % (a['node_path'], aid, msg))
+        output_msg = "'%s': autogen attribute [%s] %s" % (a['node_path'], aid, msg)
     else:
         # value stored in dataset
-        f.error.append("'%s': autogen dataset %s" % (a['node_path'], msg))
-
+        output_msg = "'%s': autogen dataset %s" % (a['node_path'], msg)
+    if severity == 'warning':
+        f.warning.append(output_msg)
+    else:
+        f.error.append(output_msg)
 
 def update_autogen(f, a):
     """Update values that are stored in autogen fields.  This processes one
@@ -1467,21 +1615,36 @@ def update_autogen(f, a):
         aid = a['aid']
         node = f.path2node[a['node_path']]
         ats = node.attributes[aid]
-        value = ats['nv'] if 'nv' in ats else (
-            ats['value'] if 'value' in ats else None)
+        if 'nv' in ats:
+            # don't save computed autogen value because new value already specified
+            # nv is set by calling api.  Allow that to take precedence over autogen
+            return
+        # value = ats['nv'] if 'nv' in ats else (
+        #    ats['value'] if 'value' in ats else None)
+        value = ats['value'] if 'value' in ats else None
         if not values_match(value, a['agvalue']):
             # values do not match, update them
             ats['nv'] = a['agvalue']
-            f.set_attribute(a['node_path'], aid, a['agvalue'])
+            if not a['agvalue'] and not a['include_empty']:
+                # value is something that evaluates as False (empty) and it should not be
+                # included as an attribute because 'include_empty' is False
+                if aid in f.file_pointer[a['node_path']].attrs:
+                    # delete attribute if it's present
+                    del f.file_pointer[a['node_path']].attrs[aid]
+            else:
+                # attribute value should be saved in hdf5 file
+                f.set_attribute(a['node_path'], aid, a['agvalue'])
     else:
         if a['node_path'] in f.path2node:
         # dataset exists
             ds = f.file_pointer[a['node_path']]
             value = ds.value
             if not values_match(value, a['agvalue']):
-                f.error.append(("%s autogen dataset values do not match.  Unable to update.\n"
-                    "  expected:%s\nfound:%s") % (a['node_path'], 
-                    str(a['agvalue']), str(value)))
+                # don't generate error or warning now.  Let validate_autogen do that
+                pass
+                # f.error.append(("%s autogen dataset values do not match.  Unable to update.\n"
+                #    "  expected:%s\nfound:%s") % (a['node_path'], 
+                #    str(a['agvalue']), str(value)))
         else:
             # data set does not exist.  Create it using autogen value
             enclosing_path, name = a['node_path'].rsplit('/',1)
